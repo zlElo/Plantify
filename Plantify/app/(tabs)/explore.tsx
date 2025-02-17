@@ -71,9 +71,10 @@ export default function TabTwoScreen() {
   );
 
   const ListHeader = () => (
-    <View>
-      <ThemedView style={styles.titleContainer}>
-      </ThemedView>
+    <View style={{ alignItems: 'center', backgroundColor: 'transparent' }}>
+          <ThemedView style={{ marginTop: 45, marginBottom: 20 }}>
+            <ThemedText type="title" style={{ fontWeight: 'bold', backgroundColor: '#f2f2f2' }}>Mein Garten</ThemedText>
+          </ThemedView>
     </View>
   );
 
