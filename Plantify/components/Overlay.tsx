@@ -91,18 +91,18 @@ const Overlay: React.FC<OverlayProps> = ({ isVisible, setIsVisible }) => {
         >
           <View style={styles.formContainer}>
             <View style={styles.box}>
+              <Text style={styles.label}>Name der Pflanze:</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Name der Pflanze"
                 value={name}
                 onChangeText={(text) => setName(text)}
               />
             </View>
 
             <View style={styles.box}>
+            <Text style={styles.label}>Anzahl:</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Anzahl"
                 value={description}
                 onChangeText={(text) => setDescription(text)}
                 keyboardType="numeric"
@@ -146,9 +146,9 @@ const Overlay: React.FC<OverlayProps> = ({ isVisible, setIsVisible }) => {
             </View>
 
             <View style={styles.box}>
+            <Text style={styles.label}>Anmerkungen:</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Anmerkungen"
                 value={notes}
                 onChangeText={(text) => setNotes(text)}
                 multiline

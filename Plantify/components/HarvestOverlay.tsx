@@ -91,18 +91,18 @@ const HarvestOverlay: React.FC<OverlayProps> = ({ isVisible, setIsVisible }) => 
         >
           <View style={styles.formContainer}>
             <View style={styles.box}>
+                <Text style={styles.label}>Name der Ernte:</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Name der Ernte"
                 value={name}
                 onChangeText={(text) => setName(text)}
               />
             </View>
 
             <View style={styles.box}>
+                <Text style={styles.label}>Anzahl (Einheit/Gewicht):</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Anzahl (Einheit/Gewicht)"
                 value={description}
                 onChangeText={(text) => setDescription(text)}
               />
@@ -145,9 +145,9 @@ const HarvestOverlay: React.FC<OverlayProps> = ({ isVisible, setIsVisible }) => 
             </View>
 
             <View style={styles.box}>
+            <Text style={styles.label}>Qualität (1-10):</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Qualität (1-10)"
                 value={quality}
                 onChangeText={(text) => setQuality(text)}
                 multiline
