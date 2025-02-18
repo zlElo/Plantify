@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, TouchableOpacity, FlatList, View, Image } from 'react-native';
+import { StyleSheet, TouchableOpacity, FlatList, View, Image, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -18,14 +19,21 @@ interface Plant {
 
 export default function TabTwoScreen() {
   const [plants, setPlants] = useState<Plant[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredPlants, setFilteredPlants] = useState<Plant[]>([]);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [found, setFound] = useState(true);
 
   const loadPlants = async () => {
     try {
       const plantsJson = await AsyncStorage.getItem('@harvestData');
       if (plantsJson) {
         const loadedPlants: Plant[] = JSON.parse(plantsJson);
-        setPlants(loadedPlants);
+        // Compare loaded plants with current state
+        if (JSON.stringify(loadedPlants) !== JSON.stringify(plants)) {
+          setPlants(loadedPlants);
+          setFilteredPlants(loadedPlants);
+        }
       }
     } catch (error) {
       console.error('Error loading plants:', error);
@@ -44,7 +52,21 @@ export default function TabTwoScreen() {
         clearInterval(intervalRef.current);
       }
     };
-  }, []);
+  }, [plants]); // Add plants to the dependency array
+
+  useEffect(() => {
+    const filtered = plants.filter(plant =>
+      plant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      plant.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      plant.season.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    if (filtered.length === 0) {
+      setFound(false);
+    } else {
+      setFound(true);
+    }
+    setFilteredPlants(filtered);
+  }, [searchQuery, plants]);
 
   const deletePlant = async (id: string) => {
     try {
@@ -65,7 +87,7 @@ export default function TabTwoScreen() {
     });
 
     if (!result.canceled) {
-      const updatedPlants = plants.map(plant => 
+      const updatedPlants = plants.map(plant =>
         plant.id === plantId ? { ...plant, imageUri: result.assets[0].uri } : plant
       );
       await AsyncStorage.setItem('@harvestData', JSON.stringify(updatedPlants));
@@ -87,8 +109,8 @@ export default function TabTwoScreen() {
         <ThemedText>Datum: {new Date(item.date).toLocaleDateString()}</ThemedText>
         <ThemedText>Jahreszeit: {item.season}</ThemedText>
         <ThemedText>Qualität: {item.quality}/10</ThemedText>
-        <TouchableOpacity 
-          style={styles.deleteButton} 
+        <TouchableOpacity
+          style={styles.deleteButton}
           onPress={() => deletePlant(item.id)}
         >
           <ThemedText style={styles.deleteButtonText}>Löschen</ThemedText>
@@ -102,19 +124,35 @@ export default function TabTwoScreen() {
       <ThemedView style={{ marginTop: 45, marginBottom: 20 }}>
         <ThemedText type="title" style={{ fontWeight: 'bold', backgroundColor: '#f2f2f2' }}>Meine Ernte</ThemedText>
       </ThemedView>
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={24} color="#888" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Suche..."
+          // value={tempSearchQuery}
+          // onChangeText={(text) => setTempSearchQuery(text)}
+          onEndEditing={({ nativeEvent: { text: searchQuery } }) => setSearchQuery(searchQuery)}
+          autoCorrect={false}
+          autoComplete='off'
+        />
+      </View>
+      {!found && (
+        <ThemedText>Keine Ergebnisse gefunden.</ThemedText>
+      )}
     </View>
   );
 
   return (
     <FlatList
       ListHeaderComponent={ListHeader}
-      data={plants}
+      data={filteredPlants}
       renderItem={renderPlantItem}
       keyExtractor={item => item.id}
       contentContainerStyle={[styles.plantList, { paddingBottom: 75, paddingTop: 30 }]}
     />
   );
 }
+
 
 const styles = StyleSheet.create({
   headerImageContainer: {
@@ -171,5 +209,21 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    marginBottom: 35,
+    width: '90%',
+  },
+  searchIcon: {
+    marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    height: 40,
   },
 });
